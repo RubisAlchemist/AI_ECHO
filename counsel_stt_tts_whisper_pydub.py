@@ -81,53 +81,50 @@ def get_response(thread_id, assistant_id):
 
     return event_handler.response_content
 
-def record_audio(duration, filename):
-    FORMAT = pyaudio.paInt16
-    CHANNELS = 1
-    RATE = 16000
-    CHUNK = 1024
-    WAVE_OUTPUT_FILENAME = filename
+# def record_audio(duration, filename):
+#     FORMAT = pyaudio.paInt16
+#     CHANNELS = 1
+#     RATE = 16000
+#     CHUNK = 1024
+#     WAVE_OUTPUT_FILENAME = filename
 
-    audio = pyaudio.PyAudio()
+#     audio = pyaudio.PyAudio()
 
-    # start recording
-    stream = audio.open(format=FORMAT, channels=CHANNELS,
-                        rate=RATE, input=True,
-                        frames_per_buffer=CHUNK)
-    print("\nRecording...")
-    frames = []
+#     # start recording
+#     stream = audio.open(format=FORMAT, channels=CHANNELS,
+#                         rate=RATE, input=True,
+#                         frames_per_buffer=CHUNK)
+#     print("\nRecording...")
+#     frames = []
 
-    for _ in range(0, int(RATE / CHUNK * duration)):
-        data = stream.read(CHUNK)
-        frames.append(data)
+#     for _ in range(0, int(RATE / CHUNK * duration)):
+#         data = stream.read(CHUNK)
+#         frames.append(data)
 
-    print("\nFinished recording.")
+#     print("\nFinished recording.")
 
-    # stop recording
-    stream.stop_stream()
-    stream.close()
-    audio.terminate()
+#     # stop recording
+#     stream.stop_stream()
+#     stream.close()
+#     audio.terminate()
 
-    waveFile = wave.open(WAVE_OUTPUT_FILENAME, 'wb')
-    waveFile.setnchannels(CHANNELS)
-    waveFile.setsampwidth(audio.get_sample_size(FORMAT))
-    waveFile.setframerate(RATE)
-    waveFile.writeframes(b''.join(frames))
-    waveFile.close()
+#     waveFile = wave.open(WAVE_OUTPUT_FILENAME, 'wb')
+#     waveFile.setnchannels(CHANNELS)
+#     waveFile.setsampwidth(audio.get_sample_size(FORMAT))
+#     waveFile.setframerate(RATE)
+#     waveFile.writeframes(b''.join(frames))
+#     waveFile.close()
 
-def transcribe_speech(filename):    # 음성을 텍스트로(STT)
-    #with wave.open(filename, 'rb') as wf:
-    #    audio_content = wf.readframes(wf.getnframes())
+# def transcribe_speech(filename):    # 음성을 텍스트로(STT)
 
-    audio_file = open(filename, "rb")
-    transcription = client.audio.transcriptions.create(
-        model="whisper-1",
-        file=audio_file,
-        #response_format="text",
-        language="ko"
-    )
-    #print(f"transcription: {transcription}")
-    return transcription.text
+#     audio_file = open(filename, "rb")
+#     transcription = client.audio.transcriptions.create(
+#         model="whisper-1",
+#         file=audio_file,
+#         language="ko"
+#     )
+#     #print(f"transcription: {transcription}")
+#     return transcription.text
 
 def synthesize_speech(text, filename):  # 텍스트를 음성으로(TTS)
     warnings.filterwarnings('ignore', category=DeprecationWarning)
@@ -173,27 +170,30 @@ def main():
     add_message_to_thread(thread_id, "assistant", initial_greeting)
 
     synthesize_speech(initial_greeting, "initial_greeting.wav")
-    play_audio("initial_greeting.wav")
+    #play_audio("initial_greeting.wav")
 
     while True:
         user_start_time = time.time()
         
-        record_audio(10, "user_input.wav") 
+        ### record_audio(10, "user_input.wav") 
 
         stt_start_time = time.time()
-        user_input = transcribe_speech("user_input.wav")
+        ### user_input = transcribe_speech("user_input.wav")
+
         stt_end_time = time.time()
         stt_latency = stt_end_time - stt_start_time
         
-        print(f"\n내담자: {user_input}")
-        
+        ### print(f"\n내담자: {user_input}")
+
+        user_input = input("\n내담자: ")
+
         user_end_time = time.time()
 
         if user_input == '종료':
             end_message = "에코: 그럼 상담은 여기까지로 마치도록 하겠습니다.\n좋은 하루 보내세요!"
             print(end_message)
             synthesize_speech(end_message, "end_message.wav")
-            play_audio("end_message.wav")
+            #play_audio("end_message.wav")
             break
 
         user_row = pd.DataFrame([{
@@ -234,7 +234,7 @@ def main():
         synthesize_speech(response, response_filename) # response_filename 적용
         tts_end_time = time.time()
         tts_latency = tts_end_time - tts_start_time
-        play_audio(response_filename)
+        #play_audio(response_filename)
         
         e2e_latency = time.time() - user_start_time
         waiting_latency = tts_end_time - stt_start_time
