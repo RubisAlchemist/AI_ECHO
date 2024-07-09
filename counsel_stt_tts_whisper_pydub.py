@@ -135,7 +135,7 @@ def synthesize_speech(text, filename):  # 텍스트를 음성으로(TTS)
     response = client.audio.speech.create(
         model="tts-1", 
         input=text, 
-        voice="alloy",
+        voice="nova",
         #response_format="mp3"
     )
     #with open(filename, "wb") as out:
