@@ -284,16 +284,29 @@ class GeneFace2Infer:
         print(f"| To extract pose from {inp['drv_pose_name']}")
 
         # extract camera pose 
+        # if inp['drv_pose_name'] == 'static':
+        #     sample['euler'] = torch.tensor(coeff_dict['euler']).reshape([1,3]).cuda().repeat([t_x//2,1]) # default static pose
+        #     sample['trans'] = torch.tensor(coeff_dict['trans']).reshape([1,3]).cuda().repeat([t_x//2,1])
+        # else: # from file
+        #     if inp['drv_pose_name'].endswith('.mp4'):
+        #         # extract coeff from video
+        #         drv_pose_coeff_dict = fit_3dmm_for_a_video(inp['drv_pose_name'], save=False)
+        #     else:
+        #         # load from npy
+        #         drv_pose_coeff_dict = np.load(inp['drv_pose_name'], allow_pickle=True).tolist()
+        #     print(f"| Extracted pose from {inp['drv_pose_name']}")
+        #     eulers = convert_to_tensor(drv_pose_coeff_dict['euler']).reshape([-1,3]).cuda()
+        #     trans = convert_to_tensor(drv_pose_coeff_dict['trans']).reshape([-1,3]).cuda()
+        #     len_pose = len(eulers)
+        #     index_lst = [mirror_index(i, len_pose) for i in range(t_x//2)]
+        #     sample['euler'] = eulers[index_lst]
+        #     sample['trans'] = trans[index_lst]
+
         if inp['drv_pose_name'] == 'static':
             sample['euler'] = torch.tensor(coeff_dict['euler']).reshape([1,3]).cuda().repeat([t_x//2,1]) # default static pose
             sample['trans'] = torch.tensor(coeff_dict['trans']).reshape([1,3]).cuda().repeat([t_x//2,1])
         else: # from file
-            if inp['drv_pose_name'].endswith('.mp4'):
-                # extract coeff from video
-                drv_pose_coeff_dict = fit_3dmm_for_a_video(inp['drv_pose_name'], save=False)
-            else:
-                # load from npy
-                drv_pose_coeff_dict = np.load(inp['drv_pose_name'], allow_pickle=True).tolist()
+            drv_pose_coeff_dict = np.load('May_5s.npy', allow_pickle=True).tolist() # only 'May_5s.npy'
             print(f"| Extracted pose from {inp['drv_pose_name']}")
             eulers = convert_to_tensor(drv_pose_coeff_dict['euler']).reshape([-1,3]).cuda()
             trans = convert_to_tensor(drv_pose_coeff_dict['trans']).reshape([-1,3]).cuda()
